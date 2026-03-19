@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Venu Kumar Dhulla | Ethical Hacker</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;600;700&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --g:#00ff88;--g2:#00cc66;--gd:#003320;
+  --r:#ff2244;--c:#00eeff;--y:#ffdd00;
+  --o:#ff6600;--p:#aa00ff;
+  --bg:#000508;--bg2:#010d0a;
+  --panel:rgba(0,255,136,0.04);
+  --border:rgba(0,255,136,0.15);
+  --text:#80ffcc;--textd:#2a6644;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);color:var(--g);
+  font-family:'Rajdhani',sans-serif;
+  min-height:100vh;overflow-x:hidden;
+  cursor:none;
+}
+
+/* Custom Cursor */
+#cursor{position:fixed;width:20px;height:20px;border:2px solid var(--g);border-radius:50%;pointer-events:none;z-index:9999;transition:transform 0.1s;mix-blend-mode:difference;}
+#cursor-dot{position:fixed;width:4px;height:4px;background:var(--g);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);}
+#cursor.hover{transform:translate(-50%,-50%) scale(2.5);background:rgba(0,255,136,0.1);}
+
+/* 3D Canvas */
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+
+/* Scanlines */
+body::after{
+  content:'';position:fixed;top:0;left:0;right:0;bottom:0;z-index:1;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,255,136,0.008) 3px,rgba(0,255,136,0.008) 4px);
+  animation:scanlines 8s linear infinite;
+}
+@keyframes scanlines{0%{background-position:0 0;}100%{background-position:0 100px;}}
+
+/* Nav */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:16px 32px;display:flex;justify-content:space-between;align-items:center;
+  background:linear-gradient(180deg,rgba(0,5,8,0.95) 0%,transparent 100%);
+  border-bottom:1px solid rgba(0,255,136,0.08);
+}
+.nav-logo{
+  font-family:'Orbitron',monospace;font-size:16px;font-weight:900;
+  color:var(--g);letter-spacing:3px;
+  text-shadow:0 0 20px var(--g),0 0 40px var(--g2);
+  position:relative;
+}
+.nav-logo::after{content:'_';animation:blink 1s infinite;}
+.nav-links{display:flex;gap:24px;}
+.nav-links a{
+  color:var(--textd);text-decoration:none;font-size:12px;
+  letter-spacing:3px;font-family:'Share Tech Mono',monospace;
+  transition:all 0.3s;position:relative;padding-bottom:4px;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:0;left:0;width:0;height:1px;
+  background:var(--g);transition:width 0.3s;
+}
+.nav-links a:hover{color:var(--g);}
+.nav-links a:hover::after{width:100%;}
+
+/* Wrapper */
+.wrapper{position:relative;z-index:2;}
+
+/* ═══ HERO ═══ */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  justify-content:center;align-items:flex-start;
+  padding:100px 8vw 60px;position:relative;overflow:hidden;
+}
+
+/* Glitch text */
+.glitch-wrap{position:relative;margin-bottom:8px;}
+.glitch-sub{
+  font-family:'Share Tech Mono',monospace;font-size:13px;
+  color:var(--c);letter-spacing:6px;margin-bottom:16px;
+  animation:fadeInUp 0.8s ease both;
+}
+.hero-name{
+  font-family:'Orbitron',monospace;
+  font-size:clamp(36px,9vw,80px);font-weight:900;
+  line-height:0.95;color:#fff;
+  text-shadow:0 0 40px rgba(0,255,136,0.5);
+  animation:fadeInUp 0.8s ease 0.1s both;
+}
+.hero-name .line2{color:var(--g);text-shadow:0 0 40px var(--g),0 0 80px var(--g2);}
+.glitch{position:relative;}
+.glitch::before,.glitch::after{
+  content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;
+}
+.glitch::before{
+  color:var(--r);clip-path:polygon(0 15%,100% 15%,100% 35%,0 35%);
+  animation:glitch1 4s infinite;text-shadow:none;
+}
+.glitch::after{
+  color:var(--c);clip-path:polygon(0 60%,100% 60%,100% 80%,0 80%);
+  animation:glitch2 4s infinite 0.1s;text-shadow:none;
+}
+
+.hero-role{
+  font-size:clamp(14px,3vw,22px);color:var(--text);letter-spacing:4px;
+  margin:20px 0;font-family:'Share Tech Mono',monospace;
+  animation:fadeInUp 0.8s ease 0.2s both;
+}
+.role-type{color:var(--g);border-right:2px solid var(--g);padding-right:4px;animation:blink 0.8s infinite;}
+
+.hero-desc{
+  max-width:520px;font-size:15px;color:var(--textd);line-height:1.8;
+  margin-bottom:36px;font-weight:300;
+  animation:fadeInUp 0.8s ease 0.3s both;
+}
+
+/* Badges */
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:40px;animation:fadeInUp 0.8s ease 0.4s both;}
+.badge{
+  padding:6px 14px;font-size:11px;letter-spacing:2px;border-radius:2px;
+  font-family:'Share Tech Mono',monospace;border:1px solid;position:relative;overflow:hidden;
+  transition:all 0.3s;
+}
+.badge::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);transition:left 0.5s;}
+.badge:hover::before{left:100%;}
+.bg{border-color:var(--g2);color:var(--g);background:rgba(0,255,136,0.05);}
+.bc{border-color:#00aacc;color:var(--c);background:rgba(0,238,255,0.05);}
+.br{border-color:#cc1133;color:var(--r);background:rgba(255,34,68,0.05);}
+.by{border-color:#ccaa00;color:var(--y);background:rgba(255,221,0,0.05);}
+.bp{border-color:#8800cc;color:var(--p);background:rgba(170,0,255,0.05);}
+
+/* CTA buttons */
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;animation:fadeInUp 0.8s ease 0.5s both;}
+.btn{
+  padding:14px 28px;font-family:'Share Tech Mono',monospace;
+  font-size:12px;letter-spacing:3px;border-radius:2px;
+  cursor:pointer;text-decoration:none;transition:all 0.3s;
+  position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:8px;
+}
+.btn::before{
+  content:'';position:absolute;top:0;left:0;width:0;height:100%;
+  background:rgba(255,255,255,0.05);transition:width 0.3s;
+}
+.btn:hover::before{width:100%;}
+.btn-p{background:linear-gradient(135deg,#003320,#005533);border:1px solid var(--g);color:var(--g);text-shadow:0 0 10px var(--g);}
+.btn-p:hover{box-shadow:0 0 30px rgba(0,255,136,0.3),inset 0 0 20px rgba(0,255,136,0.05);}
+.btn-s{background:transparent;border:1px solid var(--textd);color:var(--textd);}
+.btn-s:hover{border-color:var(--g);color:var(--g);}
+
+/* Hero 3D element */
+.hero-3d{
+  position:absolute;right:5vw;top:50%;transform:translateY(-50%);
+  width:min(400px,45vw);height:min(400px,45vw);
+  animation:float 6s ease-in-out infinite;
+  pointer-events:none;
+}
+#hero-canvas{width:100%;height:100%;}
+
+/* Scroll hint */
+.scroll-hint{
+  position:absolute;bottom:40px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  animation:fadeInUp 1s ease 1s both;
+}
+.scroll-line{width:1px;height:50px;background:linear-gradient(180deg,var(--g),transparent);animation:scroll-anim 2s ease-in-out infinite;}
+.scroll-txt{font-size:9px;letter-spacing:4px;color:var(--textd);}
+
+/* ═══ STATS ═══ */
+.stats-bar{
+  padding:40px 8vw;
+  background:linear-gradient(90deg,rgba(0,255,136,0.03),rgba(0,238,255,0.03));
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+}
+.stats-inner{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:900px;margin:0 auto;}
+.stat-item{text-align:center;padding:16px;position:relative;}
+.stat-item::after{content:'';position:absolute;right:0;top:20%;height:60%;width:1px;background:var(--border);}
+.stat-item:last-child::after{display:none;}
+.stat-n{font-family:'Orbitron',monospace;font-size:40px;font-weight:900;color:var(--g);display:block;text-shadow:0 0 20px var(--g);}
+.stat-l{font-size:10px;color:var(--textd);letter-spacing:3px;margin-top:4px;display:block;}
+
+/* ═══ SECTION BASE ═══ */
+.section{padding:100px 8vw;max-width:1200px;margin:0 auto;}
+.sec-eyebrow{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--c);letter-spacing:5px;margin-bottom:10px;}
+.sec-title{font-family:'Orbitron',monospace;font-size:clamp(24px,5vw,40px);font-weight:900;color:#fff;margin-bottom:40px;text-shadow:0 0 20px rgba(0,255,136,0.3);}
+.sec-title span{color:var(--g);}
+
+/* ═══ ABOUT ═══ */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;}
+.about-text{font-size:15px;color:var(--textd);line-height:1.9;font-weight:300;}
+.about-text p{margin-bottom:16px;}
+.about-text strong{color:var(--text);}
+
+.skills-wrap{display:flex;flex-direction:column;gap:14px;}
+.skill-row{display:flex;flex-direction:column;gap:6px;}
+.skill-top{display:flex;justify-content:space-between;font-size:12px;letter-spacing:2px;}
+.skill-name-txt{color:var(--text);}
+.skill-pct-txt{color:var(--g);font-family:'Orbitron',monospace;font-size:11px;}
+.skill-track{height:3px;background:rgba(0,255,136,0.08);border-radius:1px;overflow:hidden;}
+.skill-bar-fill{height:100%;border-radius:1px;background:linear-gradient(90deg,var(--g2),var(--g),var(--c));width:0%;transition:width 1.2s cubic-bezier(0.4,0,0.2,1);box-shadow:0 0 8px var(--g);}
+
+/* ═══ PROJECTS ═══ */
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.proj-card{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:4px;padding:24px;position:relative;
+  overflow:hidden;transition:all 0.4s cubic-bezier(0.4,0,0.2,1);
+  cursor:pointer;
+}
+.proj-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--g),var(--c),transparent);
+  opacity:0;transition:opacity 0.3s;
+}
+.proj-card::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(0,255,136,0.06) 0%,transparent 60%);
+  opacity:0;transition:opacity 0.3s;pointer-events:none;
+}
+.proj-card:hover{border-color:rgba(0,255,136,0.4);transform:translateY(-6px);box-shadow:0 20px 60px rgba(0,255,136,0.1);}
+.proj-card:hover::before{opacity:1;}
+.proj-card:hover::after{opacity:1;}
+
+.proj-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
+.proj-num{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--textd);letter-spacing:2px;}
+.proj-icon-wrap{width:44px;height:44px;border:1px solid var(--border);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:22px;background:rgba(0,255,136,0.03);}
+
+.proj-name{font-family:'Orbitron',monospace;font-size:15px;font-weight:700;color:#fff;margin-bottom:8px;letter-spacing:1px;}
+.proj-desc{font-size:13px;color:var(--textd);line-height:1.7;margin-bottom:16px;font-weight:300;}
+.proj-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
+.proj-tag{padding:3px 9px;background:rgba(0,255,136,0.05);border:1px solid rgba(0,255,136,0.1);border-radius:2px;font-size:9px;color:var(--textd);letter-spacing:2px;font-family:'Share Tech Mono',monospace;}
+
+.proj-links{display:flex;gap:8px;}
+.pl{
+  padding:7px 14px;border-radius:2px;font-size:10px;
+  letter-spacing:2px;text-decoration:none;transition:all 0.2s;
+  font-family:'Share Tech Mono',monospace;
+}
+.pl-live{background:rgba(0,255,136,0.1);border:1px solid var(--g2);color:var(--g);}
+.pl-live:hover{background:rgba(0,255,136,0.2);box-shadow:0 0 15px rgba(0,255,136,0.2);}
+.pl-gh{background:transparent;border:1px solid rgba(0,255,136,0.15);color:var(--textd);}
+.pl-gh:hover{border-color:var(--g2);color:var(--g);}
+
+/* ═══ TERMINAL SECTION ═══ */
+.terminal-section{padding:80px 8vw;background:rgba(0,255,136,0.01);border-top:1px solid var(--border);}
+.terminal-box{
+  max-width:800px;margin:0 auto;
+  background:#000;border:1px solid rgba(0,255,136,0.2);border-radius:6px;
+  overflow:hidden;box-shadow:0 0 60px rgba(0,255,136,0.05);
+}
+.term-header{
+  background:rgba(0,255,136,0.05);padding:12px 16px;
+  display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(0,255,136,0.1);
+}
+.term-dot{width:12px;height:12px;border-radius:50%;}
+.term-title{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--textd);margin-left:8px;letter-spacing:2px;}
+.term-body{padding:20px 24px;font-family:'Share Tech Mono',monospace;font-size:12px;line-height:2;min-height:200px;}
+.term-line{margin-bottom:2px;}
+.tc-g{color:var(--g);}
+.tc-c{color:var(--c);}
+.tc-y{color:var(--y);}
+.tc-r{color:var(--r);}
+.tc-w{color:#fff;}
+.tc-d{color:var(--textd);}
+.tc-p{color:var(--p);}
+.term-cursor{display:inline-block;width:8px;height:14px;background:var(--g);animation:blink 1s infinite;vertical-align:middle;}
+
+/* ═══ CONTACT ═══ */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;}
+.contact-info{font-size:15px;color:var(--textd);line-height:1.9;font-weight:300;}
+.contact-links-wrap{display:flex;flex-direction:column;gap:12px;}
+.contact-link{
+  display:flex;align-items:center;gap:14px;padding:16px 20px;
+  border:1px solid var(--border);border-radius:4px;
+  text-decoration:none;transition:all 0.3s;background:var(--panel);
+  position:relative;overflow:hidden;
+}
+.contact-link::before{content:'';position:absolute;left:0;top:0;width:3px;height:100%;background:var(--g);transform:scaleY(0);transition:transform 0.3s;}
+.contact-link:hover{border-color:rgba(0,255,136,0.3);transform:translateX(6px);}
+.contact-link:hover::before{transform:scaleY(1);}
+.cl-icon{font-size:20px;width:32px;text-align:center;}
+.cl-info{}
+.cl-name{font-family:'Orbitron',monospace;font-size:12px;color:#fff;letter-spacing:1px;display:block;}
+.cl-val{font-size:11px;color:var(--textd);font-family:'Share Tech Mono',monospace;margin-top:2px;display:block;}
+
+/* Footer */
+footer{
+  text-align:center;padding:40px 20px;
+  border-top:1px solid var(--border);
+  font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--textd);letter-spacing:3px;
+}
+footer span{color:var(--g);}
+
+/* Animations */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes float{0%,100%{transform:translateY(-50%) rotate(0deg)}50%{transform:translateY(calc(-50% - 20px)) rotate(2deg)}}
+@keyframes scroll-anim{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+@keyframes glitch1{0%,90%,100%{clip-path:polygon(0 0,0 0,0 0,0 0);transform:none}91%{clip-path:polygon(0 15%,100% 15%,100% 35%,0 35%);transform:translate(-3px,0)}93%{clip-path:polygon(0 60%,100% 60%,100% 75%,0 75%);transform:translate(3px,0)}95%{clip-path:polygon(0 40%,100% 40%,100% 55%,0 55%);transform:translate(-2px,0)}97%{clip-path:polygon(0 0,0 0,0 0,0 0)}}
+@keyframes glitch2{0%,92%,100%{clip-path:polygon(0 0,0 0,0 0,0 0);transform:none}93%{clip-path:polygon(0 65%,100% 65%,100% 80%,0 80%);transform:translate(3px,0)}95%{clip-path:polygon(0 20%,100% 20%,100% 40%,0 40%);transform:translate(-3px,0)}97%{clip-path:polygon(0 0,0 0,0 0,0 0)}}
+@keyframes rotate3d{from{transform:rotateY(0deg) rotateX(10deg)}to{transform:rotateY(360deg) rotateX(10deg)}}
+@keyframes particle-float{0%{transform:translateY(0) translateX(0);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-100vh) translateX(var(--dx));opacity:0}}
+
+/* Intersection fade */
+.reveal{opacity:0;transform:translateY(40px);transition:all 0.8s cubic-bezier(0.4,0,0.2,1);}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.reveal-delay-1{transition-delay:0.1s;}
+.reveal-delay-2{transition-delay:0.2s;}
+.reveal-delay-3{transition-delay:0.3s;}
+
+@media(max-width:768px){
+  .about-grid,.contact-grid{grid-template-columns:1fr;}
+  .hero-3d{display:none;}
+  .stats-inner{grid-template-columns:repeat(2,1fr);}
+  .nav-links{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div id="cursor"></div>
+<div id="cursor-dot"></div>
+
+<!-- 3D Background -->
+<canvas id="bg-canvas"></canvas>
+
+<div class="wrapper">
+
+<!-- Nav -->
+<nav>
+  <div class="nav-logo">VKD</div>
+  <div class="nav-links">
+    <a href="#about">ABOUT</a>
+    <a href="#projects">PROJECTS</a>
+    <a href="#terminal">SKILLS</a>
+    <a href="#contact">CONTACT</a>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero" id="home">
+  <div class="glitch-sub">[ ETHICAL HACKER · VAPT SPECIALIST ]</div>
+  <div class="hero-name">
+    <div>VENU KUMAR</div>
+    <div class="line2 glitch" data-text="DHULLA">DHULLA</div>
+  </div>
+  <div class="hero-role">
+    <span class="role-type" id="roleType"></span>
+  </div>
+  <div class="hero-desc">
+    CS & AI Graduate from Sir C.R. Reddy College, Eluru · Andhra Pradesh.
+    Specializing in Web Application Penetration Testing, Network Security,
+    and building offensive security tools.
+  </div>
+  <div class="badges">
+    <span class="badge bg">OWASP TOP 10</span>
+    <span class="badge bc">BURP SUITE</span>
+    <span class="badge by">KALI LINUX</span>
+    <span class="badge br">VAPT</span>
+    <span class="badge bp">PYTHON</span>
+    <span class="badge bg">NMAP</span>
+    <span class="badge bc">SQLi · XSS</span>
+  </div>
+  <div class="hero-btns">
+    <a href="#projects" class="btn btn-p">⚡ VIEW PROJECTS</a>
+    <a href="https://github.com/venu-maxx" target="_blank" class="btn btn-s">⬡ GITHUB</a>
+    <a href="https://www.linkedin.com/in/venu-kumar-dhulla-4013a83a5" target="_blank" class="btn btn-s">in LINKEDIN</a>
+  </div>
+
+  <!-- 3D rotating element -->
+  <div class="hero-3d">
+    <canvas id="hero-canvas"></canvas>
+  </div>
+
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    <div class="scroll-txt">SCROLL DOWN</div>
+  </div>
+</section>
+
+<!-- Stats -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-item reveal">
+      <span class="stat-n" data-target="6">0</span>
+      <span class="stat-l">PROJECTS</span>
+    </div>
+    <div class="stat-item reveal reveal-delay-1">
+      <span class="stat-n" data-target="5">0</span>
+      <span class="stat-l">LIVE TOOLS</span>
+    </div>
+    <div class="stat-item reveal reveal-delay-2">
+      <span class="stat-n" data-target="10">0</span>
+      <span class="stat-l">SKILLS</span>
+    </div>
+    <div class="stat-item reveal reveal-delay-3">
+      <span class="stat-n" data-target="50">0</span>
+      <span class="stat-l">COMMITS</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ABOUT ═══ -->
+<div class="section" id="about">
+  <div class="sec-eyebrow reveal">// WHO AM I</div>
+  <div class="sec-title reveal">ABOUT <span>ME</span></div>
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <p>I'm <strong>Venu Kumar Dhulla</strong>, a passionate <strong>Ethical Hacker</strong> and Cybersecurity enthusiast from Eluru, Andhra Pradesh, India.</p>
+      <p>Graduated with a degree in <strong>Computer Science & AI</strong> from Sir C.R. Reddy College. I specialize in <strong>Web Application Penetration Testing (VAPT)</strong>, Network Security, and building offensive security tools for educational purposes.</p>
+      <p>My toolkit includes <strong>Burp Suite, Kali Linux, Nmap, Metasploit</strong>, and custom Python scripts. I am actively pursuing opportunities in the <strong>Cybersecurity domain</strong>.</p>
+    </div>
+    <div class="skills-wrap reveal reveal-delay-1">
+      <div class="skill-row">
+        <div class="skill-top"><span class="skill-name-txt">Web Pentesting</span><span class="skill-pct-txt">85%</span></div>
+        <div class="skill-track"><div class="skill-bar-fill" data-w="85%"></div></div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-top"><span class="skill-name-txt">Python Scripting</span><span class="skill-pct-txt">82%</span></div>
+        <div class="skill-track"><div class="skill-bar-fill" data-w="82%"></div></div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-top"><span class="skill-name-txt">Burp Suite</span><span class="skill-pct-txt">78%</span></div>
+        <div class="skill-track"><div class="skill-bar-fill" data-w="78%"></div></div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-top"><span class="skill-name-txt">Kali Linux</span><span class="skill-pct-txt">80%</span></div>
+        <div class="skill-track"><div class="skill-bar-fill" data-w="80%"></div></div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-top"><span class="skill-name-txt">Network Recon</span><span class="skill-pct-txt">75%</span></div>
+        <div class="skill-track"><div class="skill-bar-fill" data-w="75%"></div></div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-top"><span class="skill-name-txt">OWASP / VAPT</span><span class="skill-pct-txt">80%</span></div>
+        <div class="skill-track"><div class="skill-bar-fill" data-w="80%"></div></div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-top"><span class="skill-name-txt">HTML / JS</span><span class="skill-pct-txt">72%</span></div>
+        <div class="skill-track"><div class="skill-bar-fill" data-w="72%"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PROJECTS ═══ -->
+<div class="section" id="projects">
+  <div class="sec-eyebrow reveal">// WHAT I BUILT</div>
+  <div class="sec-title reveal">SECURITY <span>TOOLS</span></div>
+  <div class="projects-grid">
+
+    <div class="proj-card reveal">
+      <div class="proj-header">
+        <span class="proj-num">01 / RECON</span>
+        <div class="proj-icon-wrap">🕵️</div>
+      </div>
+      <div class="proj-name">NETWORK SCANNER</div>
+      <div class="proj-desc">ARP-based WiFi scanner built in Python for Termux. Detects all connected devices with IP, MAC, vendor info and unknown device alerts.</div>
+      <div class="proj-tags"><span class="proj-tag">PYTHON</span><span class="proj-tag">ARP</span><span class="proj-tag">NMAP</span><span class="proj-tag">TERMUX</span></div>
+      <div class="proj-links">
+        <a href="https://github.com/venu-maxx/ethical-network-scanner" target="_blank" class="pl pl-gh">⬡ GITHUB</a>
+      </div>
+    </div>
+
+    <div class="proj-card reveal reveal-delay-1">
+      <div class="proj-header">
+        <span class="proj-num">02 / CRYPTO</span>
+        <div class="proj-icon-wrap">🔐</div>
+      </div>
+      <div class="proj-name">PASSWORD ANALYZER</div>
+      <div class="proj-desc">Real-time password strength analyzer with entropy calculation, crack time estimation, and Matrix hacker UI.</div>
+      <div class="proj-tags"><span class="proj-tag">HTML</span><span class="proj-tag">ENTROPY</span><span class="proj-tag">OWASP</span></div>
+      <div class="proj-links">
+        <a href="https://venu-maxx.github.io/password-strength-checker" target="_blank" class="pl pl-live">⚡ LIVE</a>
+        <a href="https://github.com/venu-maxx/password-strength-checker" target="_blank" class="pl pl-gh">⬡ GITHUB</a>
+      </div>
+    </div>
+
+    <div class="proj-card reveal reveal-delay-2">
+      <div class="proj-header">
+        <span class="proj-num">03 / RECON</span>
+        <div class="proj-icon-wrap">🔍</div>
+      </div>
+      <div class="proj-name">PORT SCANNER</div>
+      <div class="proj-desc">Advanced port scanner with service detection, banner grabbing, preset attack modes and live terminal output.</div>
+      <div class="proj-tags"><span class="proj-tag">TCP/IP</span><span class="proj-tag">BANNER GRAB</span><span class="proj-tag">RECON</span></div>
+      <div class="proj-links">
+        <a href="https://venu-maxx.github.io/port-scanner" target="_blank" class="pl pl-live">⚡ LIVE</a>
+        <a href="https://github.com/venu-maxx/port-scanner" target="_blank" class="pl pl-gh">⬡ GITHUB</a>
+      </div>
+    </div>
+
+    <div class="proj-card reveal">
+      <div class="proj-header">
+        <span class="proj-num">04 / VAPT</span>
+        <div class="proj-icon-wrap">🛡️</div>
+      </div>
+      <div class="proj-name">VULN SCANNER</div>
+      <div class="proj-desc">Web vulnerability scanner covering OWASP Top 10 — SQLi, XSS, HTTP headers, SSL/TLS, open redirect with A-F security scoring.</div>
+      <div class="proj-tags"><span class="proj-tag">OWASP</span><span class="proj-tag">SQLi</span><span class="proj-tag">XSS</span><span class="proj-tag">VAPT</span></div>
+      <div class="proj-links">
+        <a href="https://venu-maxx.github.io/web-vulnerability-scanner" target="_blank" class="pl pl-live">⚡ LIVE</a>
+        <a href="https://github.com/venu-maxx/web-vulnerability-scanner" target="_blank" class="pl pl-gh">⬡ GITHUB</a>
+      </div>
+    </div>
+
+    <div class="proj-card reveal reveal-delay-1">
+      <div class="proj-header">
+        <span class="proj-num">05 / EXPLOIT</span>
+        <div class="proj-icon-wrap">⚡</div>
+      </div>
+      <div class="proj-name">BRUTE FORCE SIM</div>
+      <div class="proj-desc">Advanced attack simulator with 4 modules: Brute Force, Dictionary, Hash Cracker (MD5/SHA256), PIN Crack with live attack metrics.</div>
+      <div class="proj-tags"><span class="proj-tag">MD5/SHA</span><span class="proj-tag">DICTIONARY</span><span class="proj-tag">L33T</span></div>
+      <div class="proj-links">
+        <a href="https://venu-maxx.github.io/bruteforce-simulator" target="_blank" class="pl pl-live">⚡ LIVE</a>
+        <a href="https://github.com/venu-maxx/bruteforce-simulator" target="_blank" class="pl pl-gh">⬡ GITHUB</a>
+      </div>
+    </div>
+
+    <div class="proj-card reveal reveal-delay-2">
+      <div class="proj-header">
+        <span class="proj-num">06 / OSINT</span>
+        <div class="proj-icon-wrap">🌐</div>
+      </div>
+      <div class="proj-name">IP SCANNER</div>
+      <div class="proj-desc">IP intelligence tool with geolocation, OS detection, port scan, HTTP headers, Whois, traceroute, VPN/TOR detection.</div>
+      <div class="proj-tags"><span class="proj-tag">OSINT</span><span class="proj-tag">GEO</span><span class="proj-tag">WHOIS</span><span class="proj-tag">TTL</span></div>
+      <div class="proj-links">
+        <a href="https://venu-maxx.github.io/ip-scanner" target="_blank" class="pl pl-live">⚡ LIVE</a>
+        <a href="https://github.com/venu-maxx/ip-scanner" target="_blank" class="pl pl-gh">⬡ GITHUB</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ TERMINAL ═══ -->
+<div class="terminal-section reveal" id="terminal">
+  <div style="max-width:800px;margin:0 auto 24px;">
+    <div class="sec-eyebrow">// LIVE TERMINAL</div>
+    <div class="sec-title" style="margin-bottom:24px;">SKILL <span>MATRIX</span></div>
+  </div>
+  <div class="terminal-box">
+    <div class="term-header">
+      <div class="term-dot" style="background:#ff5f57"></div>
+      <div class="term-dot" style="background:#febc2e"></div>
+      <div class="term-dot" style="background:#28c840"></div>
+      <div class="term-title">venu@kali:~$ skill-matrix --all</div>
+    </div>
+    <div class="term-body" id="termBody"></div>
+  </div>
+</div>
+
+<!-- ═══ CONTACT ═══ -->
+<div class="section" id="contact">
+  <div class="sec-eyebrow reveal">// GET IN TOUCH</div>
+  <div class="sec-title reveal">CONTACT <span>ME</span></div>
+  <div class="contact-grid">
+    <div class="contact-info reveal">
+      <p style="margin-bottom:16px;">Open to opportunities in <strong style="color:var(--text)">Cybersecurity, VAPT, Ethical Hacking</strong> and Penetration Testing roles.</p>
+      <p style="margin-bottom:16px;">Based in <strong style="color:var(--text)">Eluru, Andhra Pradesh, India</strong>. Available for remote and on-site opportunities.</p>
+      <p>Feel free to reach out — let's make the digital world safer together.</p>
+    </div>
+    <div class="contact-links-wrap reveal reveal-delay-1">
+      <a href="https://github.com/venu-maxx" target="_blank" class="contact-link">
+        <span class="cl-icon">⬡</span>
+        <div class="cl-info">
+          <span class="cl-name">GITHUB</span>
+          <span class="cl-val">github.com/venu-maxx</span>
+        </div>
+      </a>
+      <a href="https://www.linkedin.com/in/venu-kumar-dhulla-4013a83a5" target="_blank" class="contact-link">
+        <span class="cl-icon">in</span>
+        <div class="cl-info">
+          <span class="cl-name">LINKEDIN</span>
+          <span class="cl-val">Venu Kumar Dhulla</span>
+        </div>
+      </a>
+      <a href="mailto:dhullavenu@gmail.com" class="contact-link">
+        <span class="cl-icon">✉</span>
+        <div class="cl-info">
+          <span class="cl-name">EMAIL</span>
+          <span class="cl-val">dhullavenu@gmail.com</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>VENU KUMAR DHULLA</span> · ETHICAL HACKER · <span>github.com/venu-maxx</span> · © 2026
+</footer>
+
+</div><!-- end wrapper -->
+
+<script>
+// ═══ CUSTOM CURSOR ═══
+const cur=document.getElementById('cursor');
+const curDot=document.getElementById('cursor-dot');
+let mx=0,my=0,cx=0,cy=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  curDot.style.left=mx+'px';curDot.style.top=my+'px';
+});
+function animateCursor(){
+  cx+=(mx-cx)*0.15;cy+=(my-cy)*0.15;
+  cur.style.left=cx+'px';cur.style.top=cy+'px';
+  cur.style.transform=`translate(-50%,-50%)`;
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+document.querySelectorAll('a,button,.proj-card,.badge').forEach(el=>{
+  el.addEventListener('mouseenter',()=>cur.classList.add('hover'));
+  el.addEventListener('mouseleave',()=>cur.classList.remove('hover'));
+});
+
+// ═══ 3D BACKGROUND PARTICLES ═══
+const bgCanvas=document.getElementById('bg-canvas');
+const bgCtx=bgCanvas.getContext('2d');
+let W,H,particles=[];
+
+function resizeBg(){
+  W=bgCanvas.width=window.innerWidth;
+  H=bgCanvas.height=window.innerHeight;
+}
+resizeBg();window.addEventListener('resize',resizeBg);
+
+class Particle{
+  constructor(){this.reset();}
+  reset(){
+    this.x=Math.random()*W;this.y=Math.random()*H;
+    this.z=Math.random()*2+0.5;
+    this.vx=(Math.random()-0.5)*0.3*this.z;
+    this.vy=(Math.random()-0.5)*0.3*this.z;
+    this.r=Math.random()*1.5+0.5;
+    this.a=Math.random()*0.5+0.1;
+    this.color=Math.random()>0.7?'0,238,255':'0,255,136';
+  }
+  update(){
+    this.x+=this.vx;this.y+=this.vy;
+    if(this.x<0||this.x>W||this.y<0||this.y>H)this.reset();
+  }
+  draw(){
+    bgCtx.beginPath();bgCtx.arc(this.x,this.y,this.r,0,Math.PI*2);
+    bgCtx.fillStyle=`rgba(${this.color},${this.a})`;bgCtx.fill();
+  }
+}
+
+// Connection lines
+for(let i=0;i<120;i++) particles.push(new Particle());
+
+function drawBg(){
+  bgCtx.clearRect(0,0,W,H);
+  particles.forEach(p=>{p.update();p.draw();});
+  // Connection lines
+  for(let i=0;i<particles.length;i++){
+    for(let j=i+1;j<particles.length;j++){
+      const dx=particles[i].x-particles[j].x;
+      const dy=particles[i].y-particles[j].y;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<120){
+        const alpha=(1-dist/120)*0.15;
+        bgCtx.beginPath();
+        bgCtx.moveTo(particles[i].x,particles[i].y);
+        bgCtx.lineTo(particles[j].x,particles[j].y);
+        bgCtx.strokeStyle=`rgba(0,255,136,${alpha})`;
+        bgCtx.lineWidth=0.5;bgCtx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(drawBg);
+}
+drawBg();
+
+// ═══ HERO 3D ROTATING CUBE ═══
+const hCanvas=document.getElementById('hero-canvas');
+const hCtx=hCanvas.getContext('2d');
+let hW,hH;
+function resizeHero(){
+  hW=hCanvas.width=hCanvas.offsetWidth;
+  hH=hCanvas.height=hCanvas.offsetHeight;
+}
+resizeHero();
+
+// 3D cube vertices
+const size=80;
+const verts=[
+  [-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],
+  [-1,-1, 1],[1,-1, 1],[1,1, 1],[-1,1, 1]
+].map(v=>v.map(x=>x*size));
+
+const edges=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+
+let angleX=0,angleY=0,angleZ=0;
+
+function project(v,cx,cy){
+  const fov=350,z=v[2]+fov;
+  return [cx+v[0]*fov/z, cy+v[1]*fov/z];
+}
+
+function rotateX(v,a){
+  const c=Math.cos(a),s=Math.sin(a);
+  return [v[0],v[1]*c-v[2]*s,v[1]*s+v[2]*c];
+}
+function rotateY(v,a){
+  const c=Math.cos(a),s=Math.sin(a);
+  return [v[0]*c+v[2]*s,v[1],-v[0]*s+v[2]*c];
+}
+function rotateZ(v,a){
+  const c=Math.cos(a),s=Math.sin(a);
+  return [v[0]*c-v[1]*s,v[0]*s+v[1]*c,v[2]];
+}
+
+function drawHero(){
+  hCtx.clearRect(0,0,hW,hH);
+  const cx=hW/2,cy=hH/2;
+
+  // Outer wireframe cube
+  const transformed=verts.map(v=>{
+    let r=rotateX(v,angleX);
+    r=rotateY(r,angleY);
+    r=rotateZ(r,angleZ);
+    return r;
+  });
+
+  edges.forEach(([a,b])=>{
+    const pa=project(transformed[a],cx,cy);
+    const pb=project(transformed[b],cx,cy);
+    const grad=hCtx.createLinearGradient(pa[0],pa[1],pb[0],pb[1]);
+    grad.addColorStop(0,'rgba(0,255,136,0.8)');
+    grad.addColorStop(1,'rgba(0,238,255,0.8)');
+    hCtx.beginPath();hCtx.moveTo(pa[0],pa[1]);hCtx.lineTo(pb[0],pb[1]);
+    hCtx.strokeStyle=grad;hCtx.lineWidth=1.5;
+    hCtx.shadowBlur=8;hCtx.shadowColor='rgba(0,255,136,0.5)';
+    hCtx.stroke();
+  });
+  hCtx.shadowBlur=0;
+
+  // Inner rotating smaller cube
+  const s2=40;
+  const verts2=[[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]].map(v=>v.map(x=>x*s2));
+  const t2=verts2.map(v=>{
+    let r=rotateX(v,-angleX*1.5);
+    r=rotateY(r,angleY*1.5);
+    return r;
+  });
+  edges.forEach(([a,b])=>{
+    const pa=project(t2[a],cx,cy);
+    const pb=project(t2[b],cx,cy);
+    hCtx.beginPath();hCtx.moveTo(pa[0],pa[1]);hCtx.lineTo(pb[0],pb[1]);
+    hCtx.strokeStyle='rgba(255,34,68,0.6)';hCtx.lineWidth=1;hCtx.stroke();
+  });
+
+  // Center glow dot
+  hCtx.beginPath();hCtx.arc(cx,cy,4,0,Math.PI*2);
+  hCtx.fillStyle='rgba(0,255,136,1)';
+  hCtx.shadowBlur=20;hCtx.shadowColor='rgba(0,255,136,1)';
+  hCtx.fill();hCtx.shadowBlur=0;
+
+  // Orbiting particles
+  const t=Date.now()*0.001;
+  for(let i=0;i<6;i++){
+    const a=t*0.8+i*(Math.PI*2/6);
+    const r=120;
+    const px=cx+Math.cos(a)*r;
+    const py=cy+Math.sin(a)*r*0.4;
+    const pz=Math.sin(a)*r;
+    const scale=1+(pz/r)*0.3;
+    hCtx.beginPath();hCtx.arc(px,py,2*scale,0,Math.PI*2);
+    hCtx.fillStyle=`rgba(0,238,255,${0.3+scale*0.4})`;
+    hCtx.shadowBlur=10;hCtx.shadowColor='rgba(0,238,255,0.8)';
+    hCtx.fill();
+  }
+  hCtx.shadowBlur=0;
+
+  angleX+=0.005;angleY+=0.008;angleZ+=0.003;
+  requestAnimationFrame(drawHero);
+}
+drawHero();
+
+// ═══ ROLE TYPING EFFECT ═══
+const roles=['Jr. Penetration Tester','VAPT Specialist','Ethical Hacker','Web Security Analyst','Python Developer'];
+let ri=0,ci=0,deleting=false;
+function typeRole(){
+  const el=document.getElementById('roleType');
+  const word=roles[ri];
+  if(!deleting){
+    el.textContent=word.slice(0,++ci);
+    if(ci===word.length){deleting=true;setTimeout(typeRole,2000);return;}
+  } else {
+    el.textContent=word.slice(0,--ci);
+    if(ci===0){deleting=false;ri=(ri+1)%roles.length;}
+  }
+  setTimeout(typeRole,deleting?50:100);
+}
+typeRole();
+
+// ═══ TERMINAL ANIMATION ═══
+const termLines=[
+  {t:'tc-g',txt:'venu@kali:~$ whoami'},
+  {t:'tc-w',txt:'Venu Kumar Dhulla — Ethical Hacker'},
+  {t:'tc-g',txt:'venu@kali:~$ cat skills.txt'},
+  {t:'tc-c',txt:'[+] Web App Pentesting ████████░░ 85%'},
+  {t:'tc-c',txt:'[+] Python Scripting   ████████░░ 82%'},
+  {t:'tc-c',txt:'[+] Burp Suite         ███████░░░ 78%'},
+  {t:'tc-c',txt:'[+] Kali Linux         ████████░░ 80%'},
+  {t:'tc-c',txt:'[+] Network Recon      ███████░░░ 75%'},
+  {t:'tc-c',txt:'[+] OWASP / VAPT       ████████░░ 80%'},
+  {t:'tc-g',txt:'venu@kali:~$ ls projects/'},
+  {t:'tc-y',txt:'network-scanner   password-checker   port-scanner'},
+  {t:'tc-y',txt:'vuln-scanner      bruteforce-sim     ip-scanner'},
+  {t:'tc-g',txt:'venu@kali:~$ cat status.txt'},
+  {t:'tc-p',txt:'[STATUS] Open to Cybersecurity opportunities'},
+  {t:'tc-p',txt:'[GOAL]   Jr. Penetration Tester role'},
+  {t:'tc-r',txt:'[READY]  Available immediately'},
+  {t:'tc-g',txt:'venu@kali:~$ '},
+];
+
+let tli=0;
+function addTermLine(){
+  if(tli>=termLines.length) return;
+  const body=document.getElementById('termBody');
+  const line=termLines[tli];
+  const d=document.createElement('div');
+  d.className=`term-line ${line.t}`;
+  d.textContent=line.txt;
+  body.appendChild(d);
+  body.scrollTop=body.scrollHeight;
+  tli++;
+  setTimeout(addTermLine,tli<3?300:120);
+}
+
+// ═══ INTERSECTION OBSERVER ═══
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(!entry.isIntersecting) return;
+    entry.target.classList.add('visible');
+
+    // Counter animation
+    const numEl=entry.target.querySelector('[data-target]');
+    if(numEl){
+      const target=parseInt(numEl.dataset.target);
+      let count=0;
+      const step=target/60;
+      const timer=setInterval(()=>{
+        count=Math.min(count+step,target);
+        numEl.textContent=Math.round(count);
+        if(count>=target){numEl.textContent=target;clearInterval(timer);}
+      },16);
+    }
+
+    // Skill bars
+    entry.target.querySelectorAll('.skill-bar-fill').forEach(bar=>{
+      setTimeout(()=>{bar.style.width=bar.dataset.w;},200);
+    });
+
+    // Terminal
+    if(entry.target.id==='terminal' && tli===0) setTimeout(addTermLine,500);
+  });
+},{threshold:0.2});
+
+document.querySelectorAll('.reveal,.stats-bar,.terminal-section').forEach(el=>observer.observe(el));
+
+// ═══ PROJECT CARD MOUSE GLOW ═══
+document.querySelectorAll('.proj-card').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect();
+    card.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');
+    card.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%');
+  });
+});
+</script>
+</body>
+</html>
